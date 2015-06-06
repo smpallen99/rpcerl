@@ -1,0 +1,12 @@
+{application, rpcerl,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { rpcerl_app, []}},
+  {env, []}
+ ]}.
