@@ -1,0 +1,218 @@
+20> l(rpc_server).
+{module,rpc_server}
+21> l(test3_svc).
+{module,test3_svc}
+22> l(test3_server).
+{module,test3_server}
+23> test3_server:start_link().
+{ok,<0.74.0>}
+24> rpc_server:start_link([{tcp, {127,0,0,1}, 32788,1,[]}], 2, test_prog1_2, 2, 2, test3_svc,[]).
+true
+XXXYYYXXX <0.74.0>: test3_server:handle_info got {tcp_new,#Port<0.654>}
+XXXYYYXXX <0.74.0>: test3_server:handle_info got {tcp_new,#Port<0.655>}
+XXXYYYXXX <0.74.0>: test3_server:handle_info got {tcp_closed,#Port<0.655>}
+XXXYYYXXX <0.74.0>: test3_server:handle_info got {tcp_new,#Port<0.656>}
+XXXYYYXXX <0.74.0>: test3_server:handle_info got {tcp_closed,#Port<0.656>}
+
+
+1> l(rpc_clnt).
+{module,rpc_clnt}
+2> l(test_prog1_2).
+{module,test_prog1_2}
+3> l(test3_svc).
+{module,test3_svc}
+5> {:ok, clnt}=rpc_client:open('localhost', 2,2, tcp).
+** exception error: no match of right hand side value {ok,<0.43.0>}
+10> rpc_client:open('localhost', 2,2, tcp).
+{ok,<0.64.0>}
+
+=============================================================================================
+
+Elixir shell
+
+Interactive Elixir (1.0.2) - press Ctrl+C to exit (type h() ENTER for help)
+iex(1)> import :rpc_server
+nil
+iex(2)> import :test3_svc
+nil
+iex(3)> import :test3_server
+nil
+iex(4)> :test3_server.start_link
+{:ok, #PID<0.58.0>}
+iex(5)> :rpc_server.start_link([{:tcp, {127,0,0,1}, 32788,1,[]}], 2, :test_prog1_2, 2, 2, :test3_svc,[])
+true
+XXXYYYXXX <0.58.0>: test3_server:handle_info got {tcp_new,#Port<0.1574>}
+
+client side
+===========
+Interactive Elixir (1.0.2) - press Ctrl+C to exit (type h() ENTER for help)
+iex(1)> import :rpc_client
+nil
+iex(2)> import :test_prog1_2
+nil
+iex(3)> {_, clnt}=:rpc_client.open('localhost', 2,2, :tcp)
+{:ok, #PID<0.60.0>}
+iex(8)> :test3_clnt.fnull_2(clnt)
+{:error, :SYSTEM_ERR}
+
+
+
+=============================================================================================
+Stack 
+server side
+
+iex(1)> import :rpc_server
+nil
+iex(2)> import :stack
+nil
+iex(3)> :stack.start
+{:ok, #PID<0.57.0>}
+iex(4)> import :stack_svc
+nil
+iex(1)> :rpc_server.start_link([{:tcp, {127,0,0,1}, 32789,2,[]}], 2, :stack_prog_1, 2, 2, :stack_svc,[])
+true
+
+client side
+iex(1)> import :rpc_client
+nil
+iex(2)> import :stack_client
+nil
+
+:rpc_client.open({127,0,0,1}, 2, 2, :tcp)
+
+=============================================================================================
+Stack.
+server side
+
+iex(1)> import :rpc_server
+nil
+iex(2)> import :stack_server
+nil
+iex(3)> :stack_server.start
+{:ok, #PID<0.57.0>}
+iex(4)> :rpc_server.start_link([{:tcp, {127,0,0,1}, 32789,2,[]}], 2, :stack_prog_1, 2, 2, :stack_server,[])
+
+
+client side
+iex(1)> import :rpc_client
+nil
+iex(2)> import :stack_client
+nil
+iex(5)> import :stack_clnt
+iex(1)> {ret, pid} =:rpc_client.open({127,0,0,1}, 2, 2, :tcp, 32789)
+{:ok, #PID<0.61.0>}
+Established connection****
+
+
+
+iex(1)> :stack_client.main({127,0,0,1}, :tcp, 32789)
+
+=============================================================================================
+Good reference
+http://stackoverflow.com/questions/13660657/sending-erlang-message-from-one-node-to-another-node-returns-badarg
+
+
+=============================================================================================
+iex(1)> import :rpc_server
+nil
+iex(2)> import :test3_server
+nil
+iex(3)> import :test3_svc
+nil
+iex(4)> :test3_server.start_link
+{:ok, #PID<0.58.0>}
+iex(5)> :rpc_server.start_link([{:tcp, {127,0,0,1}, 32789,false,[]}], 2, :test_prog1_2, 2, 2, :test3_server,[])
+{:ok, #PID<0.61.0>}
+XXXYYYXXX <0.61.0>: test3_server:handle_info got {tcp_new,#Port<0.1528>}
+iex(6)> 
+16:58:59.568 [error] rpc_server: prog:2 vsns:[{2, :test_prog1_2_2}] {:test3_server,
+ {:undef,
+  [{:test3_server, :test_prog1_2_2,
+    [1,
+     <<0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ...>>,
+     40, {:client, #Port<0.1528>, :sock, 0, {:AUTH_NONE, ""}}, {:state}], []},
+   {:rpc_server, :handle_msg1, 4, [file: 'rpc_server.erl', line: 263]},
+   {:rpc_server, :handle_msg, 4, [file: 'rpc_server.erl', line: 237]},
+   {:rpc_server, :handle_info, 2, [file: 'rpc_server.erl', line: 210]},
+   {:gen_server, :handle_msg, 5, [file: 'gen_server.erl', line: 599]},
+   {:proc_lib, :init_p_do_apply, 3, [file: 'proc_lib.erl', line: 239]}]}}
+
+XXXYYYXXX <0.61.0>: test3_server:handle_info got {tcp_closed,#Port<0.1528>}
+XXXYYYXXX <0.61.0>: test3_server:handle_info got {tcp_new,#Port<0.1591>}
+XXXYYYXXX <0.61.0>: test3_server:handle_info got {tcp_closed,#Port<0.1591>}
+XXXYYYXXX <0.61.0>: test3_server:handle_info got {tcp_new,#Port<0.1592>}
+
+iex(1)> import :rpc_client
+nil
+iex(2)> import :test3_client
+nil
+iex(4)> {ret, pid} =:rpc_client.open({127,0,0,1}, 2, 2, :tcp, 32789)
+{:ok, #PID<0.59.0>}
+
+iex(3)> :test3_client.close(pid)
+:ok     
+iex(4)> {ret, pid} =:rpc_client.open({127,0,0,1}, 2, 2, :tcp, 32789)
+{:ok, #PID<0.81.0>}
+iex(5)> :test3_client.close(pid)                                    
+:ok     
+iex(6)> {ret, pid} =:rpc_client.open({127,0,0,1}, 2, 2, :tcp, 32789)
+{:ok, #PID<0.84.0>}
+=============================================================================================
+
+iex(1)> import :rpc_server
+nil
+iex(2)> import :test3_server
+nil
+iex(3)> import :test3_svc   
+nil
+iex(4)> import :test3_xdr
+nil
+iex(5)> :test3_server.start_link
+{:ok, #PID<0.59.0>}
+iex(6)> :rpc_server.start_link([{:tcp, {127,0,0,1}, 32789,false,[]}], 2, :test_prog1, 2, 2, :test3_server,[])
+{:ok, #PID<0.61.0>}
+
+
+iex(1)> import :rpc_client
+nil
+iex(2)> import :test3_client
+nil
+iex(3)> {ret, pid} =:rpc_client.open({127,0,0,1}, 2, 2, :tcp, 32789)
+{:ok, #PID<0.57.0>}
+
+{ret, pid} =:rpc_client.open({127,0,0,1}, 2, 2, :tcp, 32789)
+
+:test3_clnt.pow_2(pid,{2,2})
+----------------------------------------------------------------------------------------------
+iex(1)> import :rpc_server
+nil
+iex(2)> import :epmd_server
+nil
+iex(3)> :epmd_server.start
+{:ok, #PID<0.57.0>}
+iex(4)> :rpc_server.start_link([{:tcp, {127,0,0,1}, 32789,false,[]}], 2, :epmd_prog, 2,2 , :epmd_server,[])
+{:ok, #PID<0.59.0>}
+iex(5)> import :epmd_svc
+nil
+iex(6)> 
+
+
+
+iex(1)> {ret, pid} =:rpc_client.open({127,0,0,1}, 2, 2, :tcp, 32789)
+{:ok, #PID<0.84.0>}
+iex(2)> :stack_client.pop(pid)
+
+iex(2)> import :epmd_test
+
+iex(3)> :epmd_test.test
+{:EXIT, 
+ {:undef,
+  [{:epmd_svc, :epmd_prog_1, [:foo, 5, []], []},
+   {:epmd_test, :test, 0, [file: 'epmd_test.erl', line: 5]},
+   {:erl_eval, :do_apply, 6, [file: 'erl_eval.erl', line: 657]},
+   {:elixir, :erl_eval, 3, [file: 'src/elixir.erl', line: 175]},
+   {:elixir, :eval_forms, 4, [file: 'src/elixir.erl', line: 163]},
+   {IEx.Evaluator, :handle_eval, 4, [file: 'lib/iex/evaluator.ex', line: 116]},
+   {IEx.Evaluator, :eval, 2, [file: 'lib/iex/evaluator.ex', line: 92]},
+   {IEx.Evaluator, :loop, 1, [file: 'lib/iex/evaluator.ex', line: 29]}]}}
+

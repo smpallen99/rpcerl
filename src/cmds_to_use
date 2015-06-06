@@ -1,0 +1,521 @@
+RPC information
+===============
+[root@ucx mdse]# rpcinfo -p localhost
+   program vers proto   port  service
+    100000    4   tcp    111  portmapper
+    100000    3   tcp    111  portmapper
+    100000    2   tcp    111  portmapper
+    100000    4   udp    111  portmapper
+    100000    3   udp    111  portmapper
+    100000    2   udp    111  portmapper
+    100024    1   udp  50053  status
+    100024    1   tcp  53933  status
+ 536873368    1   tcp  32788
+         2    0   tcp   1234
+         2    2   tcp   1234
+
+[root@ucx mdse]# service nfs status
+rpc.svcgssd is stopped
+rpc.mountd is stopped
+nfsd is stopped
+rpc.rquotad is stopped
+[root@ucx mdse]# service rpcbind status
+rpcbind (pid  1093) is running...
+
+[root@ucx mdse]# showmount -e localhost
+clnt_create: RPC: Program not registered
+
+[root@ucx mdse]# service restart nfs
+restart: unrecognized service
+[root@ucx mdse]# service nfs restart
+Shutting down NFS daemon:                                  [FAILED]
+Shutting down NFS mountd:                                  [FAILED]
+Shutting down NFS quotas:                                  [FAILED]
+Starting NFS services:                                     [  OK  ]
+Starting NFS quotas:                                       [  OK  ]
+Starting NFS mountd:                                       [  OK  ]
+Starting NFS daemon:                                       [  OK  ]
+Starting RPC idmapd:                                       [  OK  ]
+[root@ucx mdse]# showmount -e localhost
+Export list for localhost:
+
+
+chkconfig nfs on
+
+
+
+[root@ucx test]# nmap localhost
+
+Starting Nmap 5.51 ( http://nmap.org ) at 2015-05-01 16:35 EDT
+Nmap scan report for localhost (127.0.0.1)
+Host is up (0.0000060s latency).
+Other addresses for localhost (not scanned): 127.0.0.1
+Not shown: 985 closed ports
+PORT      STATE SERVICE
+21/tcp    open  ftp
+22/tcp    open  ssh
+25/tcp    open  smtp
+80/tcp    open  http
+110/tcp   open  pop3
+111/tcp   open  rpcbind
+143/tcp   open  imap
+443/tcp   open  https
+993/tcp   open  imaps
+995/tcp   open  pop3s
+1234/tcp  open  hotline
+1720/tcp  open  H.323/Q.931
+2049/tcp  open  nfs
+3306/tcp  open  mysql
+32784/tcp open  unknown
+
+Nmap done: 1 IP address (1 host up) scanned in 0.10 seconds
+
+netstat -plntu
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+===========================================
+iex(1)> import :pmap
+nil
+iex(2)> import :rpc_server
+nil
+iex(3)> import :test3_svc 
+nil
+iex(4)> import :test3_server
+nil
+iex(5)> :test_prog1_2.start_link
+{:ok, #PID<0.121.0>}
+iex(6)> :rpc_server.start_link [{:tcp, {127,0,0,1}, 1234,1,[]}], 2, :test_prog1, 0, 2, :test3_svc,[]  
+
+
+
+Erlang console
+==============
+[root@ucx ebin]# erl
+Erlang/OTP 17 [erts-6.1] [source] [64-bit] [async-threads:10] [hipe] [kernel-poll:false]
+
+Eshell V6.1  (abort with ^G)
+1> l(rpc_server).
+{module,rpc_server}
+2> l(pmap).
+{module,pmap}
+3> l(test3_server).
+{module,test3_server}
+4> ls.
+ls
+5> ls().
+.empty                erpcgen.beam          llist_clnt.beam       
+llist_svc.beam        llist_xdr.beam        pmap.beam             
+pmap_clnt.beam        pmap_xdr.beam         rpc_client.beam       
+rpc_clnt.beam         rpc_server.beam       rpc_xdr.beam          
+stack.beam            stack_client.beam     test3.beam            
+test3_clnt.beam       test3_server.beam     test3_svc.beam        
+test3_xdr.beam        test_prog1_2.beam     xdr_auth.beam         
+xdr_parse.beam        xdr_scan.beam         xdrgen.beam           
+
+ok
+6> l(test3_svc).
+{module,test3_svc}
+7> test3_server:start_link().
+{ok,<0.40.0>}
+
+
+9> rpc_server:start_link([{tcp, {127,0,0,1}, 1234,1,[]}], 2, test_prog1_2, 0, 2, test3_svc,[]).
+** exception exit: {badmatch,
+                       {error,
+                           {noproc,
+                               {gen_server,call,
+                                   [<0.52.0>,
+                                    {call,1,
+                                        [[<<0,0,0,2>>,<<0,0,0,1>>,<<0,0,0,6>>,<<0,0,4,210>>]],
+                                        infinity},
+                                    infinity]}}}}
+     in function  rpc_server:create_socks/1 (rpc_server.erl, line 328)
+     in call from rpc_server:init/1 (rpc_server.erl, line 168)
+     in call from gen_server:init_it/6 (gen_server.erl, line 306)
+     in call from proc_lib:init_p_do_apply/3 (proc_lib.erl, line 239)
+
+
+
+Further progress:
+
+29> l(rpc_server).
+{module,rpc_server}
+30> l(pmap).
+{module,pmap}
+l(pmap_clnt).
+31> l(test3_server).
+{module,test3_server}
+32> l(test3_svc).
+l(test3_clnt).
+{module,test3_svc}
+33> l(test3_svc).
+{module,test3_svc}
+34> test3_server:start_link().
+{ok,<0.101.0>}
+35> dbg:tracer().
+{ok,<0.103.0>}
+36> dbg:p(all,c).
+{ok,[{matched,nonode@nohost,27}]}
+37> dbg:tpl(rpc_server,x).
+{ok,[{matched,nonode@nohost,36},{saved,x}]}
+38> dbg:tpl(test3_svc,x).
+{ok,[{matched,nonode@nohost,8},{saved,x}]}
+39> dbg:tpl(test3_server,x).
+{ok,[{matched,nonode@nohost,17},{saved,x}]}
+40> dbg:p(new,m).
+{ok,[{matched,nonode@nohost,0}]}
+41> (<0.110.0>) <0.25.0> ! {io_request,<0.110.0>,<0.25.0>,
+                           {get_until,unicode,
+                               ["41",62,32],
+                               erl_scan,tokens,
+                               [1,[]]}}
+
+41> rpc_server:start_testing([{tcp, {127,0,0,1}, 1234,1,[]}], 2, test_prog1_2, 2, 2, test3_svc,[]).
+
+
+vc,x)..
+====================================================================================================
+1> l(rpc_server).
+{module,rpc_server}
+2> l(pmap).
+{module,pmap}
+6> l(epmd).
+{module,epmd}
+7> l(epmd_svc).
+{module,epmd_svc}
+8> l(epmd_server).
+{module,epmd_server}
+9> l(epmd_xdr).
+{module,epmd_xdr}
+10> l(epmd_clnt).
+{module,epmd_clnt}
+11> l(epmd_test).
+{module,epmd_test}
+12> l(rpc_server).
+{module,rpc_server}
+13> l(rpc_xdr).
+{module,rpc_xdr}
+14> l(rpc_client).
+{module,rpc_client}
+15> l(rpc_clnt).
+{module,rpc_clnt}
+16> l(pmap_clnt).
+{module,pmap_clnt}
+17> l(pmap_xdr).
+{module,pmap_xdr}
+20> epmd_server:start().
+{ok,<0.54.0>}
+23> dbg:tracer().
+{ok,<0.63.0>}
+24> dbg:p(all,c).
+{ok,[{matched,nonode@nohost,27}]}
+25> dbg:tpl(rpc_server,x).
+{ok,[{matched,nonode@nohost,36},{saved,x}]}
+26> dbg:tpl(empd_svc,x).
+{ok,[{matched,nonode@nohost,0},{saved,x}]}
+27> dbg:tpl(empd_server,x).
+{ok,[{matched,nonode@nohost,0},{saved,x}]}
+28> dbg:p(new,m).
+{ok,[{matched,nonode@nohost,0}]}
+29> (<0.71.0>) <0.25.0> ! {io_request,<0.71.0>,<0.25.0>,
+                          {get_until,unicode,
+                              ["29",62,32],
+                              erl_scan,tokens,
+                              [1,[]]}}
+
+29> rpc_server:start_testing([{tcp, {127,0,0,1}, 1234,1,[]}], 2, epmd_prog_1, 2, 2, epmd_svc,[]).
+
+====================================================================================================
+
+
+
+Elixir console
+==============
+[root@ucx ebin]# iex
+Erlang/OTP 17 [erts-6.1] [source] [64-bit] [async-threads:10] [hipe] [kernel-poll:false]
+
+Interactive Elixir (1.0.2) - press Ctrl+C to exit (type h() ENTER for help)
+iex(1)> import :rpc_server
+nil
+iex(2)> import :pmap
+nil
+iex(3)> import :epmd
+nil
+iex(4)> import :epmd_svc
+nil
+iex(5)> import :epmd_server
+nil
+iex(6)> import :epmd_clnt  
+nil
+iex(7)> import :epmd_test
+nil
+iex(8)> __ENV__.functions
+[{:epmd_test, [test: 0]},
+ {:epmd_clnt,
+  [epmdproc_dump_1: 1, epmdproc_dump_1: 2, epmdproc_getport_1: 2,
+   epmdproc_getport_1: 3, epmdproc_null_1: 1, epmdproc_null_1: 2,
+   epmdproc_set_1: 2, epmdproc_set_1: 3, epmdproc_unset_1: 2,
+   epmdproc_unset_1: 3]},
+ {:epmd_server,
+  [handle_call: 3, handle_cast: 2, handle_info: 2, init: 1, start: 0, stop: 0,
+   terminate: 2]},
+ {:epmd_svc,
+  [epmd_prog_1: 5, handle_call: 3, handle_cast: 2, handle_info: 2, init: 1,
+   terminate: 2]},
+ {:epmd,
+  [clnt_close: 1, clnt_open: 1, clnt_open: 2, dump: 1, dump_fmt: 1, getport: 4,
+   null: 1, set: 5, unset: 5]},
+ {:pmap,
+  [callit: 5, close: 1, dump: 1, dump_fmt: 1, getport: 4, null: 1, open: 1,
+   open: 2, set: 5, unset: 5]},
+ {:rpc_server,
+  [client_ip: 1, client_socket: 1, handle_call: 3, handle_cast: 2,
+   handle_info: 2, init: 1, listener: 2, reply: 3, start_link: 7, start_link: 8,
+   start_testing: 7, terminate: 2]},
+ {Kernel,
+  [!=: 2, !==: 2, *: 2, +: 1, +: 2, ++: 2, -: 1, -: 2, --: 2, /: 2, <: 2, <=: 2,
+   ==: 2, ===: 2, =~: 2, >: 2, >=: 2, abs: 1, apply: 2, apply: 3,
+   binary_part: 3, bit_size: 1, byte_size: 1, div: 2, elem: 2, exit: 1,
+   function_exported?: 3, get_and_update_in: 3, get_in: 2, hd: 1, inspect: 1,
+   inspect: 2, is_atom: 1, is_binary: 1, is_bitstring: 1, is_boolean: 1,
+   is_float: 1, is_function: 1, is_function: 2, is_integer: 1, is_list: 1,
+   is_map: 1, ...]}]
+iex(9)> :rpc_server.start_testing([{:tcp, {127,0,0,1}, 1234,1,[]}], 2, :epmd_prog_1, 2, 2, :epmd_svc,[])
+true
+iex(10)> :epmd_test.test
+{:EXIT,
+ {:undef,
+  [{:epmd_svc, :epmd_prog_1, [:foo, 5, []], []},
+   {:epmd_test, :test, 0, [file: 'epmd_test.erl', line: 5]},
+   {:erl_eval, :do_apply, 6, [file: 'erl_eval.erl', line: 657]},
+   {:elixir, :erl_eval, 3, [file: 'src/elixir.erl', line: 175]},
+   {:elixir, :eval_forms, 4, [file: 'src/elixir.erl', line: 163]},
+   {IEx.Evaluator, :handle_eval, 4, [file: 'lib/iex/evaluator.ex', line: 116]},
+   {IEx.Evaluator, :eval, 2, [file: 'lib/iex/evaluator.ex', line: 92]},
+   {IEx.Evaluator, :loop, 1, [file: 'lib/iex/evaluator.ex', line: 29]}]}}
+iex(11)> ?
+
+
+
+==============================================================
+^C[root@ucx ebin]# iex
+Erlang/OTP 17 [erts-6.1] [source] [64-bit] [async-threads:10] [hipe] [kernel-poll:false]
+
+Interactive Elixir (1.0.2) - press Ctrl+C to exit (type h() ENTER for help)
+iex(1)> import :rpc_server
+nil
+iex(2)> import :pmap
+nil
+iex(3)> import :test3_svc 
+nil
+iex(4)> import :test3_server
+nil
+iex(5)> :test_prog1_2.start_link
+{:ok, #PID<0.59.0>}
+iex(6)> :rpc_server.start_link [{:tcp, {127,0,0,1}, 1234,1,[]}], 2, :test_prog1, 2, 2, :test3_svc,[]
+{:ok, #PID<0.61.0>}
+
+
+
+
+======================================================================
+^C[root@ucx ebin]# iex
+Erlang/OTP 17 [erts-6.1] [source] [64-bit] [async-threads:10] [hipe] [kernel-poll:false]
+
+Interactive Elixir (1.0.2) - press Ctrl+C to exit (type h() ENTER for help)
+iex(1)> import :rpc_server
+nil
+iex(2)> import :foxRpc_server
+nil
+iex(3)> import :foxRpc_clnt
+nil
+iex(4)> :foxRpc_server.start_link
+{:ok, #PID<0.59.0>}
+iex(5)> :rpc_server.start_link [{:tcp, {127,0,0,1}, 32778,1,[]}], 2, :main_cabinet_service_prog_1, 2, 2, :foxRpc_svc,[]
+true
+
+
+
+
+
+=================================================================================
+Client side
+============
+iex(1)> import :stack_client
+nil
+iex(2)> __ENV__.functions
+[{:stack_client, [main: 1, main: 2, main: 3, open: 1]},
+ {Kernel,
+  [!=: 2, !==: 2, *: 2, +: 1, +: 2, ++: 2, -: 1, -: 2, --: 2, /: 2, <: 2, <=: 2,
+   ==: 2, ===: 2, =~: 2, >: 2, >=: 2, abs: 1, apply: 2, apply: 3,
+   binary_part: 3, bit_size: 1, byte_size: 1, div: 2, elem: 2, exit: 1,
+   function_exported?: 3, get_and_update_in: 3, get_in: 2, hd: 1, inspect: 1,
+   inspect: 2, is_atom: 1, is_binary: 1, is_bitstring: 1, is_boolean: 1,
+   is_float: 1, is_function: 1, is_function: 2, is_integer: 1, is_list: 1,
+   is_map: 1, is_number: 1, is_pid: 1, is_port: 1, is_reference: 1, is_tuple: 1,
+   length: 1, ...]}]
+
+iex(3)> :stack_client.open 'localhost'
+{:error, :EPROGUNAVAIL}
+iex(4)> :stack_client.main 'localhost'
+{:error, :EPROGUNAVAIL}
+iex(5)> import :rpc_client
+nil
+iex(6)> :rpc_client.open('localhost', 2,2, :tcp)
+{:ok, #PID<0.66.0>}
+iex(7)> clnt=:rpc_client.open('localhost', 2,2, :tcp)
+{:ok, #PID<0.76.0>}
+iex(9)> :rpc_client.call(Clnt, :pow, 2)
+** (exit) exited in: :gen_server.call(Clnt, {:call, :pow, 2, :undefined}, :infinity)
+    ** (EXIT) no process
+    (stdlib) gen_server.erl:190: :gen_server.call/3
+=================================================================================
+Improper client call
+
+iex(5)> :foxRpc_clnt.getmgcconfig_1(clnt, 1)
+** (exit) exited in: :gen_server.call({:ok, #PID<0.62.0>}, {:call, 11, [<<0, 0, 0, 1>>], :infinity}, :infinity)
+    ** (EXIT) an exception was raised:
+        ** (FunctionClauseError) no function clause matching in :gen.call/4
+            (stdlib) gen.erl:149: :gen.call({:ok, #PID<0.62.0>}, :"$gen_call", {:call, 11, [<<0, 0, 0, 1>>], :infinity}, :infinity)
+            (stdlib) gen_server.erl:186: :gen_server.call/3
+            foxRpc_clnt.erl:44: :foxRpc_clnt.getmgcconfig_1/3
+            (stdlib) erl_eval.erl:657: :erl_eval.do_apply/6
+            (elixir) src/elixir.erl:175: :elixir.erl_eval/3
+            (elixir) src/elixir.erl:163: :elixir.eval_forms/4
+            (iex) lib/iex/evaluator.ex:116: IEx.Evaluator.handle_eval/4
+            (iex) lib/iex/evaluator.ex:92: IEx.Evaluator.eval/2
+    (stdlib) gen_server.erl:190: :gen_server.call/3
+             foxRpc_clnt.erl:44: :foxRpc_clnt.getmgcconfig_1/3
+=================================================================================
+
+iex(1)> import :rpc_server
+nil
+iex(2)> import :test3
+nil
+iex(3)> import :test3_svc
+nil
+iex(4)> :test_prog1_2.start_link
+{:ok, #PID<0.59.0>}
+iex(5)> :rpc_server.start_link [{:tcp, {127,0,0,1}, 1234,1,[]}], 2, :test_prog1, 2, 2, :test3_svc,[]
+
+
+iex(5)> import :test3_clnt
+nil
+iex(6)> :test3_clnt.pow_2(clnt,2)
+** (CaseClauseError) no case clause matching: 2
+    test3_xdr.erl:44: :test3_xdr.enc_powargs/1
+    test3_clnt.erl:16: :test3_clnt.pow_2/3
+iex(6)> :test3_clnt.pow_2(clnt,2,1)
+** (CaseClauseError) no case clause matching: 2
+    test3_xdr.erl:44: :test3_xdr.enc_powargs/1
+    test3_clnt.erl:16: :test3_clnt.pow_2/3
+iex(6)> import :test3_xdr
+nil
+iex(7)> :test3_clnt.pow_2(clnt,2,1)
+** (CaseClauseError) no case clause matching: 2
+    test3_xdr.erl:44: :test3_xdr.enc_powargs/1
+    test3_clnt.erl:16: :test3_clnt.pow_2/3
+iex(7)> :test3_clnt.pow_2(clnt,3,1)
+** (CaseClauseError) no case clause matching: 3
+    test3_xdr.erl:44: :test3_xdr.enc_powargs/1
+    test3_clnt.erl:16: :test3_clnt.pow_2/3
+iex(7)> :test3_clnt.pow_2(clnt,3)  
+** (CaseClauseError) no case clause matching: 3
+    test3_xdr.erl:44: :test3_xdr.enc_powargs/1
+    test3_clnt.erl:16: :test3_clnt.pow_2/3
+iex(7)> :test3_clnt.pow_2(clnt,[3])
+** (CaseClauseError) no case clause matching: [3]
+    test3_xdr.erl:44: :test3_xdr.enc_powargs/1
+    test3_clnt.erl:16: :test3_clnt.pow_2/3
+iex(7)> :test3_clnt.repeat_2(clnt,[3])
+** (CaseClauseError) no case clause matching: [3]
+    test3_xdr.erl:28: :test3_xdr.enc_repeatargs/1
+    test3_clnt.erl:29: :test3_clnt.repeat_2/3
+iex(7)> :test3_clnt.repeat_2(clnt)    
+** (UndefinedFunctionError) undefined function: :test3_clnt.repeat_2/1
+    :test3_clnt.repeat_2({:ok, #PID<0.62.0>})
+iex(7)> :test3_clnt.repeat_2(clnt,0)
+** (CaseClauseError) no case clause matching: 0
+    test3_xdr.erl:28: :test3_xdr.enc_repeatargs/1
+    test3_clnt.erl:29: :test3_clnt.repeat_2/3
+iex(7)> clnt
+{:ok, #PID<0.62.0>}
+iex(8)> :test3_clnt.fnull_2(clnt)   
+** (exit) exited in: :gen_server.call({:ok, #PID<0.62.0>}, {:call, 0, [], :infinity}, :infinity)
+    ** (EXIT) an exception was raised:
+        ** (FunctionClauseError) no function clause matching in :gen.call/4
+            (stdlib) gen.erl:149: :gen.call({:ok, #PID<0.62.0>}, :"$gen_call", {:call, 0, [], :infinity}, :infinity)
+            (stdlib) gen_server.erl:186: :gen_server.call/3
+            test3_clnt.erl:60: :test3_clnt.fnull_2/2
+            (stdlib) erl_eval.erl:657: :erl_eval.do_apply/6
+            (elixir) src/elixir.erl:175: :elixir.erl_eval/3
+            (elixir) src/elixir.erl:163: :elixir.eval_forms/4
+            (iex) lib/iex/evaluator.ex:116: IEx.Evaluator.handle_eval/4
+            (iex) lib/iex/evaluator.ex:92: IEx.Evaluator.eval/2
+    (stdlib) gen_server.erl:190: :gen_server.call/3
+             test3_clnt.erl:60: :test3_clnt.fnull_2/2
+
+=================================================================================
+
+Erlang console commands
+
+Eshell V6.1  (abort with ^G)
+1> l(rpc_server).
+{module,rpc_server}
+2> l(test3).
+{module,test3}
+3> l(test3_svc).
+{module,test3_svc}
+4> l(test_prog1_2).
+{module,test_prog1_2}
+5> test_prog1_2:start_link.
+* 1: illegal expression
+6> test_prog1_2:start_link().
+{ok,<0.39.0>}
+7> rpc_server:start_testing([{tcp, {127,0,0,1}, 32788,1,[]}], 2, test_prog1_2, 2, 2, test3_svc,[]).
+** exception exit: {badmatch,{error,{badmatch,{error,eaddrinuse}}}}
+     in function  rpc_server:create_socks/1 (rpc_server.erl, line 335)
+     in call from rpc_server:init/1 (rpc_server.erl, line 175)
+     in call from gen_server:init_it/6 (gen_server.erl, line 306)
+     in call from proc_lib:init_p_do_apply/3 (proc_lib.erl, line 239)
+8> rpc_server:start_testing([{tcp, {127,0,0,1}, 32788,1,[]}], 2, test_prog1_2, 2, 2, test3_svc,[]).
+
+
+client side
+Eshell V6.1  (abort with ^G)
+1> l(rpc_clnt).
+{module,rpc_clnt}
+2> l(test_prog1_2).
+{module,test_prog1_2}
+3> l(test3_svc).
+{module,test3_svc}
+4> l(rpc_client).
+{module,rpc_client}
+5> clnt=rpc_client:open('localhost', 2,2, tcp)
+** exception error: no match of right hand side value {ok,<0.43.0>}
+=================================================================================
+
