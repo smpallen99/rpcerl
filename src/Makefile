@@ -49,7 +49,7 @@ xdr_parse.erl: xdr.yrl
 clean:
 	-rm -f $(TARGET_FILES)
 	-rm -f core erl_crash.dump
-	-rm -f rpc_xdr.erl rpc.hrl
+	-rm -f rpc_xdr.erl 
 	-rm -f erpcgen.boot erpcgen.script xdr_parse.erl
 	-rm -f ../ebin/erpcgen.app ../ebin/rpc.app erpcgen.rel
 
