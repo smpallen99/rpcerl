@@ -1,7 +1,7 @@
 # Copyright (c) 2000, 2001 Sendmail, Inc.  All rights reserved.
 # This Makefile may require GNU make.
 
-include ../../../support/include.mk
+include ../support/include.mk
 include ../vsn.mk
 
 ERLC_FLAGS += -I ../..
