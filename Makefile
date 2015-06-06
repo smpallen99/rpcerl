@@ -1,8 +1,15 @@
-all: conf
-	(cd src; $(MAKE) $@)
+CWD=$(shell pwd)
+NAME=$(shell basename ${CWD})
+
+all: conf clean compile
+	./rebar compile
 
 clean:
-	(cd src; $(MAKE) $@)
+	./rebar clean
+	rm -rf rel/${NAME}
+
+compile: 
+	./rebar compile
 
 $(MK_INCLUDE): $(MK_INCLUDE).in
 	$(MAKE) conf
