@@ -1,12 +1,8 @@
 all: conf
-	(cd lib; $(MAKE) $@)
+	(cd src; $(MAKE) $@)
 
 clean:
-	(cd lib; $(MAKE) $@)
-
-$(LIBS): conf $(MK_INCLUDE)
-# Build a program, unless it has a file called SKIP in its top directory
-	if [ ! -f lib/$@/SKIP ]; then (cd lib/$@; $(MAKE) all); fi
+	(cd src; $(MAKE) $@)
 
 $(MK_INCLUDE): $(MK_INCLUDE).in
 	$(MAKE) conf
