@@ -29,6 +29,8 @@
 %%  {unsigned_int,  Line}
 %%  {hyper,         Line}
 %%  {unsigned_hyper,Line}
+%%  {short,         Line}
+%%  {unsigned_short,Line}
 %%  {float,         Line}
 %%  {double,        Line}
 %%  {bool,          Line}
@@ -45,7 +47,7 @@ procedure_def procedure_defs procedure_args.
 
 Terminals 
 '[' ']' '{' '}' '(' ')' '<' '>' '*' '=' ';' ':' ','
-'opaque' 'string' 'void' 'float' 'double' 'bool' 'int' 'hyper' 'unsigned'
+'opaque' 'string' 'void' 'float' 'double' 'bool' 'int' 'hyper' 'short' 'unsigned'
 'enum' 'struct' 'union' 'case' 'default' 'typedef' 'switch'
 'const' 'version' 'program' identifier constant.
 
@@ -86,9 +88,11 @@ opt_value -> '$empty' : infinity.
 
 type_specifier -> 'unsigned' 'int' : {unsigned_int,line('$1')}.
 type_specifier -> 'unsigned' 'hyper' : {unsigned_hyper,line('$1')}.
+type_specifier -> 'unsigned' 'short' : {unsigned_short,line('$1')}.
 type_specifier -> 'unsigned' : {unsigned_int,line('$1')}.
 type_specifier -> 'int' : {int,line('$1')}.
 type_specifier -> 'hyper' : {hyper,line('$1')}.
+type_specifier -> 'short' : {short,line('$1')}.
 type_specifier -> 'float' : {'float',line('$1')}.
 type_specifier -> 'double' : {double,line('$1')}.
 type_specifier -> 'bool' : {bool,line('$1')}.
