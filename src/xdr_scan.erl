@@ -117,6 +117,7 @@ scan_hex([C | Cs], Sign, N, Ts, Line) when C >= $a, C =< $f ->
 scan_hex(Cs, Sign, N, Ts, Line) ->
     scan(Cs, [{constant, Line, Sign * N} | Ts], Line).
 
+predefined("char") ->    {true,short};
 predefined("short") ->    {true,short};
 predefined("int") ->      {true,int};
 predefined("string") ->   {true,string};

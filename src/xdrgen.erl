@@ -109,6 +109,11 @@ encode({type,Id,Type}, Fs0) ->
     {Enc, R1} = enc_type(Type, V0, R0),
     [ mkfunction(FName, 1, [mkclause([V0], [], [Enc])]) | Fs0].
 
+%% <<V:8>>
+enc_prim_type(char, V, R) ->
+    {mkbin([mkbinelem(V, mkint(8), default)]), R};
+enc_prim_type(unsigned_char, V, R) ->
+    enc_prim_type(char, V, R);
 %% <<V:16>>
 enc_prim_type(short, V, R) ->
     {mkbin([mkbinelem(V, mkint(16), default)]), R};
@@ -196,6 +201,10 @@ enc_prim_type({varray,Max,string}, V, R) ->
     enc_prim_type({varray, Max, opaque}, V, R).
 
 
+enc_type(char, V, R) ->
+    enc_prim_type(char, V, R);
+enc_type(unsigned_char, V, R) ->
+    enc_prim_type(unsigned_char, V, R);
 enc_type(short, V, R) ->
     enc_prim_type(short, V, R);
 enc_type(unsigned_short, V, R) ->
@@ -401,6 +410,8 @@ decode({type,Id,Type}, Fs0) ->
 	    [F1 | Fs0]
     end.
 
+is_prim_dec_p(char)              -> true;
+is_prim_dec_p(unsigned_char)     -> true;
 is_prim_dec_p(short)              -> true;
 is_prim_dec_p(unsigned_short)     -> true;
 is_prim_dec_p(int)                -> true;
@@ -432,6 +443,10 @@ dec_prim_float(I_Bin, I_Off, O_Val, Sz, R) ->
      Sz div 8,
      R}.
 
+dec_prim_type(char, I_Bin, I_Off, O_Val, R) ->
+    dec_prim_int(I_Bin, I_Off, O_Val, 8, signed, R);
+dec_prim_type(unsigned_char, I_Bin, I_Off, O_Val, R) ->
+    dec_prim_int(I_Bin, I_Off, O_Val, 8, unsigned, R);
 dec_prim_type(short, I_Bin, I_Off, O_Val, R) ->
     dec_prim_int(I_Bin, I_Off, O_Val, 16, signed, R);
 dec_prim_type(unsigned_short, I_Bin, I_Off, O_Val, R) ->
