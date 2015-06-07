@@ -516,6 +516,8 @@ error(Line,Fmt,As) ->
     put(errors, get(errors)+1).
 
 %% format a type
+fmt_type(short) -> "short";
+fmt_type(unsigned_short) -> "unsigned short";
 fmt_type(int) -> "int";
 fmt_type(unsigned_int) -> "unsigned int";
 fmt_type(hyper) -> "hyper";
@@ -645,6 +647,8 @@ trans_type({varray,Line,Max,Type}, Env) ->
 		true -> trans_type(Type, Env)
 	    end,
     {varray, Max1, Type1};
+trans_type({short,_}, Env) -> short;
+trans_type({unsigned_short,_},Env) -> unsigned_short;
 trans_type({int,_}, Env) -> int;
 trans_type({unsigned_int,_},Env) -> unsigned_int;
 trans_type({hyper,_},Env) -> hyper;
