@@ -13,7 +13,8 @@ ERPCGEN_OPTS =
 ERPCGEN_MODULES = erpcgen xdr_parse xdrgen xdr_scan
 
 RPC_MODULES = rpc_client rpc_xdr rpc_server \
-	      xdr_auth 
+	            pmap pmap_clnt pmap_xdr \
+	            xdr_auth 
 
 MODULES =  $(RPC_MODULES) $(ERPCGEN_MODULES)
 
@@ -33,8 +34,8 @@ TARGET_FILES= $(MODULES:%=../ebin/%.$(EMULATOR)) $(ERPCGEN)
 %_svc_callback.erl: %.x $(ERPCGEN)
 	$(ERPCGEN) -a '[svc_callback]' $*
 
-# $(EBIN)/%.$(EMULATOR): $(ESRC)/%.erl
-# 	$(ERLC) $(ERLC_FLAGS) -o$(EBIN) $<
+$(EBIN)/%.$(EMULATOR): $(ESRC)/%.erl
+	$(ERLC) $(ERLC_FLAGS) -o$(EBIN) $<
 
 all: $(TARGET_FILES)
 
@@ -50,18 +51,16 @@ clean:
 	-rm -f $(TARGET_FILES)
 	-rm -f core erl_crash.dump
 	-rm -f rpc_xdr.erl 
+	-rm -f pmap_clnt.erl pmap_xdr.erl pmap.hrl
 	-rm -f erpcgen.boot erpcgen.script xdr_parse.erl
 	-rm -f ../ebin/erpcgen.app ../ebin/rpc.app erpcgen.rel
 
 ../ebin/rpc_client.beam: rpc.hrl
 ../ebin/rpc_server.beam: rpc.hrl
-rpc_xdr.erl: rpc.x
-	
-# ../ebin/steve_clnt.beam: steve.hrl
-# ../ebin/steve_xdr.beam: steve.hrl
-# ../ebin/steve_svc.beam: steve.hrl
-# steve_clnt.erl: steve.x
-# steve_xdr.erl: steve.x
-# steve_svc.erl: steve.x
-
+../ebin/pmap.beam: pmap.hrl
+../ebin/pmap_clnt.beam: pmap.hrl
+../ebin/pmap_svc.beam: pmap.hrl
+rpc_xdr.erl: rpc.
+pmap_xdr.erl: pmap.x
+pmap_clnt.erl: pmap.x
 
